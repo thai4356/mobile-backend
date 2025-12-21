@@ -1,5 +1,7 @@
 package mobibe.mobilebe.controller;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -28,7 +30,13 @@ public class OrderController {
         OrderRes data = orderService.createOrder(request.getUserId());
 
         return ResponseEntity.ok(
-                new BaseResponse<>(data)
-        );
+                new BaseResponse<>(data));
+    }
+
+    @GetMapping("/myOrder")
+    public ResponseEntity<BaseResponse<List<OrderRes>>> getMyOrders(
+            @RequestParam int userId) {
+        return ResponseEntity.ok(
+                new BaseResponse<>(orderService.getOrders(userId)));
     }
 }

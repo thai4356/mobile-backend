@@ -13,5 +13,10 @@ public interface ProductRepositoryCustom {
     List<Product> search(String keyword);
 
     Product findOneActiveById(int id);
-    
+
+    void insert(Product product);
+
+    void update(Product product);
+
+    void deleteById(int id);
 }

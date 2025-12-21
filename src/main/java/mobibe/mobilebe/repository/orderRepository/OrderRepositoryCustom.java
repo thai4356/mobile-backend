@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface OrderRepositoryCustom {
 
-    Order findByIdAndUserId(Long orderId, int userId);
+    List<Order> findByUserId( int userId);
 
 }

@@ -100,4 +100,41 @@ public class OrderServiceImpl implements OrderService {
         res.setItems(items);
         return res;
     }
+
+    @Override
+    public List<OrderRes> getOrders(int userId) {
+
+        List<Order> orders = orderRepository.findByUserId(userId);
+
+        if (orders == null || orders.isEmpty()) {
+            throw new BusinessException("Order not found");
+        }
+
+        List<OrderRes> result = new ArrayList<>();
+
+        for (Order order : orders) {
+
+            OrderRes res = new OrderRes();
+            res.setId(order.getId());
+            res.setStatus(order.getStatus());
+            res.setTotalAmount(order.getTotalAmount());
+            res.setCreatedAt(order.getCreatedAt());
+
+            List<OrderItemRes> itemResList = new ArrayList<>();
+
+            for (OrderItem item : order.getItems()) {
+                OrderItemRes itemRes = new OrderItemRes();
+                itemRes.setProductId(item.getProduct().getId());
+                itemRes.setProductName(item.getProduct().getName());
+                itemRes.setPrice(item.getPrice());
+                itemRes.setQuantity(item.getQuantity());
+                itemResList.add(itemRes);
+            }
+
+            res.setItems(itemResList);
+            result.add(res);
+        }
+
+        return result;
+    }
 }

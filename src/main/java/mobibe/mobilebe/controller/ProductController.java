@@ -1,13 +1,17 @@
 package mobibe.mobilebe.controller;
 
 import lombok.RequiredArgsConstructor;
+import mobibe.mobilebe.dto.request.product.ProductReq;
 import mobibe.mobilebe.dto.response.BaseResponse;
 import mobibe.mobilebe.dto.response.product.ProductRes;
 import mobibe.mobilebe.entity.product.Product;
 import mobibe.mobilebe.service.product.ProductService;
 
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -45,5 +49,31 @@ public class ProductController {
                 new BaseResponse<>(productService.getProductDetail(id)));
     }
 
-    
+    @InitBinder("productReq")
+    public void initBinder(WebDataBinder binder) {
+        binder.setDisallowedFields("files");
+    }
+
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<ProductRes> create(
+            @ModelAttribute ProductReq productReq,
+            @RequestPart(required = false) List<MultipartFile> files) {
+        return new BaseResponse<>(
+                productService.create(productReq, files));
+    }
+
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public BaseResponse<ProductRes> update(
+            @ModelAttribute ProductReq productReq,
+            @RequestPart(required = false) List<MultipartFile> files) {
+        return new BaseResponse<>(
+                productService.update(productReq, files));
+    }
+
+    @DeleteMapping("/{id}")
+    public BaseResponse<Void> delete(
+            @PathVariable Integer id) {
+        productService.delete(id);
+        return new BaseResponse<>("Deleted");
+    }
 }

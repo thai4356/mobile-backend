@@ -20,16 +20,15 @@ public class OrderRepositoryImpl extends BaseRepository implements OrderReposito
     private final QOrder qOrder = QOrder.order;
 
     @Override
-    public Order findByIdAndUserId(Long orderId, int userId) {
+    public List<Order> findByUserId(int userId) {
 
         BooleanBuilder builder = new BooleanBuilder();
-        builder.and(qOrder.id.eq(orderId));
-        builder.and(qOrder.user.id.eq((long) userId));
+        builder.and((qOrder.user.id).eq(userId));
 
         return query()
                 .select(qOrder)
                 .from(qOrder)
                 .where(builder)
-                .fetchOne();
+                .fetch();
     }
 }

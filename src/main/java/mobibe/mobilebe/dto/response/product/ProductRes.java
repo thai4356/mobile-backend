@@ -1,6 +1,9 @@
 package mobibe.mobilebe.dto.response.product;
 
 import java.math.BigDecimal;
+import java.util.List;
+
+import mobibe.mobilebe.dto.response.upload_file.UploadFileRes;
 
 public class ProductRes {
 
@@ -11,7 +14,9 @@ public class ProductRes {
     private Integer stock;
     private Integer categoryId;
     private String categoryName;
-
+    private boolean deleted;
+    private List<UploadFileRes> files;
+    
     // getter & setter
     public Integer getId() {
         return id;
@@ -60,5 +65,21 @@ public class ProductRes {
     }
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public List<UploadFileRes> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<UploadFileRes> files) {
+        this.files = files;
+    }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
