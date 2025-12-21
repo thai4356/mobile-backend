@@ -1,0 +1,103 @@
+
+package mobibe.mobilebe.service.orderService;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import mobibe.mobilebe.dto.response.order.OrderItemRes;
+import mobibe.mobilebe.dto.response.order.OrderRes;
+import mobibe.mobilebe.entity.cart.Cart;
+import mobibe.mobilebe.entity.cartItem.CartItem;
+import mobibe.mobilebe.entity.order.Order;
+import mobibe.mobilebe.entity.orderItem.OrderItem;
+import mobibe.mobilebe.entity.user.User;
+import mobibe.mobilebe.exceptions.BusinessException;
+import mobibe.mobilebe.repository.cartRepository.CartRepository;
+import mobibe.mobilebe.repository.orderRepository.OrderRepository;
+import mobibe.mobilebe.repository.userRepository.UserRepository;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+
+import mobibe.mobilebe.repository.cartItemRepository.CartItemRepository;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
+public class OrderServiceImpl implements OrderService {
+
+    private final CartRepository cartRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final CartItemRepository cartItemRepository;
+
+    @Override
+    public OrderRes createOrder(int userId) {
+
+        Cart cart = cartRepository.findActiveByUserId(userId);
+        if (cart == null || cart.getItems().isEmpty()) {
+            throw new BusinessException("Cart is empty");
+        }
+
+        User user = userRepository.getById(userId);
+
+        Order order = new Order();
+        order.setUser(user);
+        order.setStatus("NEW");
+
+        List<OrderItem> orderItems = new ArrayList<>();
+        BigDecimal total = BigDecimal.ZERO;
+
+        for (CartItem cartItem : cart.getItems()) {
+
+            OrderItem item = new OrderItem();
+            item.setOrder(order);
+            item.setProduct(cartItem.getProduct());
+            item.setQuantity(cartItem.getQuantity());
+            item.setPrice(cartItem.getProduct().getPrice());
+
+            total = total.add(
+                    item.getPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity())));
+
+            orderItems.add(item);
+        }
+
+        order.setItems(orderItems);
+        order.setTotalAmount(total);
+
+        orderRepository.save(order);
+        cartItemRepository.deleteByCartId(cart.getId());
+        cart.getItems().clear();
+
+        // 3. Deactivate cart
+        cart.setActive(false);
+        cartRepository.save(cart);
+
+        return toOrderRes(order);
+    }
+
+    private OrderRes toOrderRes(Order order) {
+
+        OrderRes res = new OrderRes();
+        res.setId(order.getId());
+        res.setStatus(order.getStatus());
+        res.setTotalAmount(order.getTotalAmount());
+        res.setCreatedAt(order.getCreatedAt());
+
+        List<OrderItemRes> items = order.getItems().stream().map(i -> {
+            OrderItemRes item = new OrderItemRes();
+            item.setProductId(i.getProduct().getId());
+            item.setProductName(i.getProduct().getName());
+            item.setQuantity(i.getQuantity());
+            item.setPrice(i.getPrice());
+            return item;
+        }).toList();
+
+        res.setItems(items);
+        return res;
+    }
+}
