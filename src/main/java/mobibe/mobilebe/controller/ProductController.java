@@ -6,7 +6,10 @@ import mobibe.mobilebe.dto.response.BaseResponse;
 import mobibe.mobilebe.dto.response.product.ProductRes;
 import mobibe.mobilebe.entity.product.Product;
 import mobibe.mobilebe.service.product.ProductService;
-
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.WebDataBinder;
@@ -54,6 +57,7 @@ public class ProductController {
         binder.setDisallowedFields("files");
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<ProductRes> create(
             @ModelAttribute ProductReq productReq,
@@ -62,6 +66,7 @@ public class ProductController {
                 productService.create(productReq, files));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public BaseResponse<ProductRes> update(
             @ModelAttribute ProductReq productReq,
@@ -70,6 +75,7 @@ public class ProductController {
                 productService.update(productReq, files));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     public BaseResponse<Void> delete(
             @PathVariable Integer id) {

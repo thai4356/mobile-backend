@@ -1,6 +1,5 @@
 package mobibe.mobilebe.repository.roleRepository;
 
-
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 
@@ -24,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static mobibe.mobilebe.util.Constants.PAGE_SIZE;
-
 
 @Repository
 public class RoleRepositoryImpl extends BaseRepository implements RoleRepositoryCustom {
@@ -54,7 +52,6 @@ public class RoleRepositoryImpl extends BaseRepository implements RoleRepository
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(qRole.id.in(ids));
         builder.and(qRole.deleted.eq(false));
-
 
         query().update(qRole)
                 .where(builder)
@@ -124,8 +121,7 @@ public class RoleRepositoryImpl extends BaseRepository implements RoleRepository
         if (roleType != null) {
             builder.andAnyOf(
                     qPermission.type.eq(RoleType.ADMIN),
-                    qPermission.type.eq(roleType)
-            );
+                    qPermission.type.eq(roleType));
         }
 
         Long count = query().from(qRolePermission)
@@ -163,7 +159,8 @@ public class RoleRepositoryImpl extends BaseRepository implements RoleRepository
 
         return query().from(qRole)
                 .innerJoin(qRolePermission).on(qRole.id.eq(qRolePermission.roleId))
-                .rightJoin(qPermission).on(qPermission.id.eq(qRolePermission.permissionId), qRolePermission.roleId.eq(roleId))
+                .rightJoin(qPermission)
+                .on(qPermission.id.eq(qRolePermission.permissionId), qRolePermission.roleId.eq(roleId))
                 .where(builder)
                 .select(Projections.fields(PermissionRes.class,
                         qPermission.id, qPermission.title, qPermission.permission,
@@ -187,6 +184,18 @@ public class RoleRepositoryImpl extends BaseRepository implements RoleRepository
                         qRole.id.as("roleId"), qRole.objectId,
                         qRole.type.as("roleType"),
                         qRole.name.as("roleName")))
+                .fetchOne();
+    }
+
+    @Override
+    public Role getUserRole() {
+
+        return query()
+                .from(qRole)
+                .where(
+                        qRole.id.eq(1)
+                                .and(qRole.deleted.eq(false)))
+                .select(qRole)
                 .fetchOne();
     }
 }

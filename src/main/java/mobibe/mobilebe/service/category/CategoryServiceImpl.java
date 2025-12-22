@@ -19,16 +19,16 @@ public class CategoryServiceImpl implements CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    // @Override
-    // public Category create(Category category) {
+    @Override
+    public Category create(Category category) {
 
-    // if (category.getName() == null || category.getName().trim().isEmpty()) {
-    // throw new BusinessException("category_name_required");
-    // }
+        if (category.getName() == null || category.getName().trim().isEmpty()) {
+            throw new BusinessException("category_name_required");
+        }
 
-    // category.setId(0); // đảm bảo insert
-    // return categoryRepository.save(category);
-    // }
+        category.setId(0); // đảm bảo insert
+        return categoryRepository.save(category);
+    }
 
     public List<Category> findAllActive() {
         return categoryRepository.findAllActive();
@@ -39,33 +39,33 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.search(keyword);
     }
 
-    // @Override
-    // public Category update(Integer id, Category req) {
+    @Override
+    public Category update(Integer id, Category req) {
 
-    // Category category = categoryRepository
-    // .findById(id)
-    // .orElseThrow(() -> new BusinessException("category_not_found"));
+        Category category = categoryRepository
+                .findById(id)
+                .orElseThrow(() -> new BusinessException("category_not_found"));
 
-    // if (req.getName() != null) {
-    // category.setName(req.getName());
-    // }
-    // if (req.getDescription() != null) {
-    // category.setDescription(req.getDescription());
-    // }
+        if (req.getName() != null) {
+            category.setName(req.getName());
+        }
+        if (req.getDescription() != null) {
+            category.setDescription(req.getDescription());
+        }
 
-    // category.setActive(req.isActive());
+        category.setActive(req.isActive());
 
-    // return categoryRepository.save(category);
-    // }
+        return categoryRepository.save(category);
+    }
 
-    // @Override
-    // public void delete(Integer id) {
+    @Override
+    public void delete(Integer id) {
 
-    // Category category = categoryRepository
-    // .findById(id)
-    // .orElseThrow(() -> new BusinessException("category_not_found"));
+        Category category = categoryRepository
+                .findById(id)
+                .orElseThrow(() -> new BusinessException("category_not_found"));
 
-    // category.setDeleted(true);
-    // categoryRepository.save(category);
-    // }
+        category.setDeleted(true);
+        categoryRepository.save(category);
+    }
 }

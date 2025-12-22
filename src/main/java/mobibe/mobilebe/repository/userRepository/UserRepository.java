@@ -8,4 +8,5 @@ import mobibe.mobilebe.entity.user.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer>, UserRepositoryCustom {
     boolean existsByPhone(String phone);
+    User findByEmail(String email);
 }

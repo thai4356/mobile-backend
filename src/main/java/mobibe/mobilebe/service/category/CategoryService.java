@@ -10,4 +10,7 @@ import mobibe.mobilebe.entity.category.Category;
 public interface CategoryService {
     List<Category> findAllActive();
     List<Category> search(String keyword);
+    Category create(Category category);
+    Category update(Integer id, Category req);
+     void delete(Integer id);
 }

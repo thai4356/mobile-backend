@@ -29,7 +29,7 @@ public class RegisterUser {
 
     @NotBlank
     String code;
-
+    
     @AssertTrue(message = "Password don't matching")
     public boolean isValid() {
         return password.equals(confirmPassword);

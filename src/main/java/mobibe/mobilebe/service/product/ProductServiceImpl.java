@@ -76,7 +76,6 @@ public class ProductServiceImpl implements ProductService {
             res.setCategoryName(product.getCategory().getName());
         }
 
-        // ✅ MAP ẢNH → UploadFileRes
         if (product.getFiles() != null && !product.getFiles().isEmpty()) {
 
             List<UploadFileRes> files = new ArrayList<>();
@@ -180,13 +179,15 @@ public class ProductServiceImpl implements ProductService {
             return;
         }
 
+        if (product.getFiles() == null) {
+            product.setFiles(new ArrayList<>());
+        }
+
         for (MultipartFile file : files) {
             UploadFile uploadFile = uploadSingleFile(file, product, type);
 
-            // ⚠️ BẮT BUỘC set quan hệ ngược
             uploadFile.setProduct(product);
 
-            // ⚠️ CHỈ ADD – TUYỆT ĐỐI KHÔNG SET
             product.getFiles().add(uploadFile);
         }
     }

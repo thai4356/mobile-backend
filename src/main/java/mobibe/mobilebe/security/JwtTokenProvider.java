@@ -1,4 +1,4 @@
-package  mobibe.mobilebe.security;
+package mobibe.mobilebe.security;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -12,6 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.crypto.SecretKey;
@@ -133,7 +134,6 @@ public class JwtTokenProvider {
         return false;
     }
 
-
     private PublicKey generateJwtKeyDecryption() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         String PUBLIC_KEY_PATH = "oauth-key/oauth-public.key";
         try (Reader reader = new FileReader(PUBLIC_KEY_PATH); PEMParser pemParser = new PEMParser(reader)) {
@@ -151,7 +151,8 @@ public class JwtTokenProvider {
         }
     }
 
-    private PrivateKey generateJwtKeyEncryption() throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+    private PrivateKey generateJwtKeyEncryption()
+            throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
         String PRIVATE_KEY_PATH = "oauth-key/oauth-private.key";
         try (Reader reader = new FileReader(PRIVATE_KEY_PATH); PEMParser pemParser = new PEMParser(reader)) {
             Object object = pemParser.readObject();
@@ -183,5 +184,7 @@ public class JwtTokenProvider {
             return new HashMap<>();
         }
     }
+
+  
 
 }

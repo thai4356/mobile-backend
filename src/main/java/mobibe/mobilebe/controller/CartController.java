@@ -6,6 +6,8 @@ import mobibe.mobilebe.entity.cart.Cart;
 import mobibe.mobilebe.service.cart.CartService;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
@@ -24,9 +26,20 @@ public class CartController {
         this.cartService = cartService;
     }
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<CartDetailRes> getMyCart(
-            @PathVariable int userId) {
+    @GetMapping("/my")
+    public ResponseEntity<CartDetailRes> getMyCart() {
+
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()
+                || "anonymousUser".equals(auth.getName())) {
+            throw new RuntimeException("Unauthorized");
+        }
+
+        int userId = Integer.parseInt(auth.getName()); 
+
         return ResponseEntity.ok(cartService.getMyCart(userId));
     }
 
@@ -47,7 +60,7 @@ public class CartController {
     @DeleteMapping("/remove")
     public ResponseEntity<CartDetailRes> removeItem(
             @RequestBody RemoveCartItemReq request) {
-
+                
         return ResponseEntity.ok(
                 cartService.removeItem(
                         request.getUserId(),

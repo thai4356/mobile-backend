@@ -34,7 +34,7 @@ public class BaseService {
         if (key == null && (groups == null || groups.length == 0)) {
             return user;
         }
-        if (roleRepository.existPermission(user.getRoleId(), groups, key, null)) {
+        if (roleRepository.existPermission(user.getRole().getId(), groups, key, null)) {
             return user;
         }
         throw new BusinessException(Translator.toLocale("invalid_permission"));
@@ -45,7 +45,7 @@ public class BaseService {
         if (roleType == null && key == null && (groups == null || groups.length == 0)) {
             return user;
         }
-        if (roleRepository.existPermission(user.getRoleId(), groups, key, roleType)) {
+        if (roleRepository.existPermission(user.getRole().getId(), groups, key, roleType)) {
             return user;
         }
         throw new BusinessException(Translator.toLocale("invalid_permission"));

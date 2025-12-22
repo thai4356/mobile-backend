@@ -1,6 +1,6 @@
 package mobibe.mobilebe.entity.user;
 
-import java.sql.Date;
+import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -39,10 +39,8 @@ public class User extends BaseEntity {
     String password;
     Date birthday;
 
-    Integer roleId;
-
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "roleId", nullable = false, insertable = false, updatable = false)
+    @JoinColumn(name = "roleId", nullable = false)
     Role role;
 
     @Column(name = "status", columnDefinition = "INT")

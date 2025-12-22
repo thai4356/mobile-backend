@@ -84,7 +84,7 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
                     qUser.email.contains(searchKeyword));
         }
         Long count = query().from(qUser)
-                .innerJoin(qRole).on(qRole.id.eq(qUser.roleId))
+                .innerJoin(qRole).on(qRole.id.eq(qUser.role))
                 .where(builder)
                 .select(qUser.id.count())
                 .fetchOne();
@@ -107,14 +107,14 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
                     qUser.email.contains(searchKeyword));
         }
         return query().from(qUser)
-                .innerJoin(qRole).on(qRole.id.eq(qUser.roleId))
+                .innerJoin(qRole).on(qRole.role.eq(qUser.role))
                 .where(builder)
                 .select(Projections.fields(UserListRes.class,
                         qUser.id, qUser.code, qUser.name, qUser.email,
                         qUser.address, qUser.phone, qUser.status,
                         qUser.birthday, qUser,
                         Projections.fields(RoleDetail.class,
-                                        qRole.id.as("roleId"),
+                                        qRole.role.as("role"),
                                         qRole.objectId,
                                         qRole.type.as("roleType"),
                                         qRole.name.as("roleName"))
@@ -135,14 +135,14 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
         builder.and(qUser.deleted.eq(false));
 
         return query().from(qUser)
-                .innerJoin(qRole).on(qRole.id.eq(qUser.roleId))
+                .innerJoin(qRole).on(qRole.role.eq(qUser.role))
                 .where(builder)
                 .select(Projections.fields(UserDetailRes.class,
                         qUser.id, qUser.code, qUser.phone, qUser.name,
                         qUser.email, qUser.address, qUser.birthday, qUser,
                         qUser.status,
                         Projections.fields(RoleDetail.class,
-                                        qRole.id.as("roleId"),
+                                        qRole.role.as("role"),
                                         qRole.objectId,
                                         qRole.type.as("roleType"),
                                         qRole.name.as("roleName"))
@@ -161,7 +161,7 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
         builder.and(qUser.deleted.eq(false));
 
         return query().from(qUser)
-                .innerJoin(qRole).on(qRole.id.eq(qUser.roleId))
+                .innerJoin(qRole).on(qRole.role.eq(qUser.role))
                 .where(builder)
                 .select(qUser.id)
                 .fetch();
@@ -190,7 +190,7 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
         // builder.and(qRole.type.eq(role.getType()));
         builder.and(qUser.deleted.eq(false));
         return query().from(qUser)
-                .innerJoin(qRole).on(qRole.id.eq(qUser.roleId))
+                .innerJoin(qRole).on(qRole.role.eq(qUser.role))
                 .where(builder)
                 .select(qUser)
                 .fetchOne();

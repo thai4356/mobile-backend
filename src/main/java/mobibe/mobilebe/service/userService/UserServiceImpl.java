@@ -3,10 +3,12 @@ package mobibe.mobilebe.service.userService;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,12 +17,17 @@ import io.swagger.v3.oas.annotations.servers.Server;
 import mobibe.mobilebe.converter.Translator;
 import mobibe.mobilebe.dto.constant.ActiveStatus;
 import mobibe.mobilebe.dto.constant.VerifyStatus;
+import mobibe.mobilebe.dto.request.auth.ForgotPasswordReq;
 import mobibe.mobilebe.dto.request.auth.UserLoginReq;
 import mobibe.mobilebe.dto.request.auth.user.RegisterUser;
+import mobibe.mobilebe.dto.request.user.ChangePasswordReq;
+import mobibe.mobilebe.dto.request.user.EditMyProfileReq;
+import mobibe.mobilebe.dto.request.user.UpdateUserReq;
 import mobibe.mobilebe.dto.response.BaseResponse;
 import mobibe.mobilebe.dto.response.role.RoleDetail;
 import mobibe.mobilebe.dto.response.user.UserDetailRes;
 import mobibe.mobilebe.dto.response.user.UserListRes;
+import mobibe.mobilebe.entity.email.EmailDetail;
 import mobibe.mobilebe.entity.otp.Otp;
 import mobibe.mobilebe.entity.role.Role;
 import mobibe.mobilebe.entity.role.constant.PermissionKey;
@@ -36,7 +43,9 @@ import mobibe.mobilebe.repository.roleRepository.RoleRepository;
 import mobibe.mobilebe.repository.userRepository.UserRepository;
 import mobibe.mobilebe.security.JwtTokenProvider;
 import mobibe.mobilebe.service.BaseService;
+import mobibe.mobilebe.service.send_email.SendEmailService;
 import mobibe.mobilebe.util.Util;
+import org.springframework.security.core.Authentication;
 
 @Service
 public class UserServiceImpl extends BaseService implements UserService {
@@ -48,19 +57,24 @@ public class UserServiceImpl extends BaseService implements UserService {
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;
     private final RolePermissionRepository rolePermissionRepository;
-     
+    private final SendEmailService sendEmailService;
+
     @Value("${app.jwtAdminExpirationInMs}")
     private int jwtExpirationInMs;
 
     private final int OTP_EXPIRY_IN_MINUTES = 5;
 
-    public UserServiceImpl(JwtTokenProvider jwtTokenProvider, OtpRepository otpRepository, PasswordEncoder passwordEncoder, PermissionRepository permissionRepository, RolePermissionRepository rolePermissionRepository, RoleRepository roleRepository, UserRepository userRepository) {
+    public UserServiceImpl(JwtTokenProvider jwtTokenProvider, OtpRepository otpRepository,
+            PasswordEncoder passwordEncoder, PermissionRepository permissionRepository,
+            RolePermissionRepository rolePermissionRepository, RoleRepository roleRepository,
+            SendEmailService sendEmailService, UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.otpRepository = otpRepository;
         this.passwordEncoder = passwordEncoder;
         this.permissionRepository = permissionRepository;
         this.rolePermissionRepository = rolePermissionRepository;
         this.roleRepository = roleRepository;
+        this.sendEmailService = sendEmailService;
         this.userRepository = userRepository;
     }
 
@@ -74,7 +88,8 @@ public class UserServiceImpl extends BaseService implements UserService {
             throw new BusinessException(Translator.toLocale("account_not_activated"));
         }
         UserDetailRes userLoginRes = getUserRes(user);
-        userLoginRes.setAccessToken(jwtTokenProvider.generateTokenRs256(String.valueOf(user.getId()), jwtExpirationInMs));
+        userLoginRes
+                .setAccessToken(jwtTokenProvider.generateTokenRs256(String.valueOf(user.getId()), jwtExpirationInMs));
         return userLoginRes;
     }
 
@@ -86,7 +101,8 @@ public class UserServiceImpl extends BaseService implements UserService {
             throw new BusinessException(Translator.toLocale("register_fail"));
         }
         try {
-            if (sessionAuth.getOtp().equals(request.getCode()) && Util.getDuration(new Date(), sessionAuth.getCreatedAt(), TimeUnit.MINUTES) >= OTP_EXPIRY_IN_MINUTES) {
+            if (sessionAuth.getOtp().equals(request.getCode()) && Util.getDuration(new Date(),
+                    sessionAuth.getCreatedAt(), TimeUnit.MINUTES) >= OTP_EXPIRY_IN_MINUTES) {
                 sessionAuth.setStatus(VerifyStatus.EXPIRED);
                 throw new BusinessException(Translator.toLocale("otp_expired"));
             }
@@ -109,25 +125,25 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         String code = generateCode(8);
 
-        Role role = new Role();
-        role.setStatus(ActiveStatus.ACTIVE);
-        role.setName(request.getAccountName());
-        roleRepository.save(role);
+        // List<Permission> permissions =
+        // permissionRepository.getPermissions(request.getBusinessRole());
+        // List<RolePermission> rolePermissions = new ArrayList<>();
+        // for (Permission permission : permissions) {
+        // RolePermission rolePermission = new RolePermission();
+        // rolePermission.setRoleId(1);
+        // rolePermission.setPermissionId(permission.getId());
+        // rolePermission.setIsView(permission.getIsView());
+        // rolePermission.setIsApproval(permission.getIsApproval());
+        // rolePermission.setIsWrite(permission.getIsWrite());
+        // rolePermission.setIsDecision(permission.getIsDecision());
+        // rolePermissions.add(rolePermission);
+        // }
+        // rolePermissionRepository.saveAll(rolePermissions);
+        Role role = roleRepository.getUserRole();
 
-        List<Permission> permissions = permissionRepository.getPermissions(request.getBusinessRole());
-        List<RolePermission> rolePermissions = new ArrayList<>();
-        for (Permission permission : permissions) {
-            RolePermission rolePermission = new RolePermission();
-            rolePermission.setRoleId(role.getId());
-            rolePermission.setPermissionId(permission.getId());
-            rolePermission.setIsView(permission.getIsView());
-            rolePermission.setIsApproval(permission.getIsApproval());
-            rolePermission.setIsWrite(permission.getIsWrite());
-            rolePermission.setIsDecision(permission.getIsDecision());
-            rolePermissions.add(rolePermission);
-        }
-        rolePermissionRepository.saveAll(rolePermissions);
-
+        System.out.println("role id   : " + role.getId());
+        System.out.println("role name : " + role.getName());
+        System.out.println("role type : " + role.getType());
         User user = new User();
         user.setCode(code);
         user.setPhone(request.getAccountPhone());
@@ -135,12 +151,12 @@ public class UserServiceImpl extends BaseService implements UserService {
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setStatus(ActiveStatus.ACTIVE);
-        user.setRoleId(role.getId());
-        user.setRole(role);
+        user.setRole(roleRepository.getUserRole());
         userRepository.save(user);
 
         UserDetailRes userLoginRes = getUserRes(user);
-        userLoginRes.setAccessToken(jwtTokenProvider.generateTokenRs256(String.valueOf(user.getId()), jwtExpirationInMs));
+        userLoginRes
+                .setAccessToken(jwtTokenProvider.generateTokenRs256(String.valueOf(user.getId()), jwtExpirationInMs));
         return userLoginRes;
 
     }
@@ -171,11 +187,11 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         return getUserRes(user);
     }
-    
+
     private UserDetailRes getUserRes(User user) {
         RoleDetail roleDetail;
         if (user.getRole() == null) {
-            roleDetail = roleRepository.getRoleById(user.getRoleId());
+            roleDetail = roleRepository.getRoleById(user.getRole().getId());
         } else {
             roleDetail = new RoleDetail();
             roleDetail.setRoleId(user.getRole().getId());
@@ -192,7 +208,6 @@ public class UserServiceImpl extends BaseService implements UserService {
                 .email(user.getEmail())
                 .role(roleDetail)
                 .birthday(user.getBirthday())
-                .permissions(roleRepository.getPermissions(user.getRoleId(), user.getRole()))
                 .build();
     }
 
@@ -206,4 +221,128 @@ public class UserServiceImpl extends BaseService implements UserService {
         } while (exists);
         return code;
     }
+
+    @Override
+    public UserDetailRes updateMember(Integer userId, UpdateUserReq request) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found"));
+
+        Role role = roleRepository.findById(request.getRoleId())
+                .orElseThrow(() -> new BusinessException("Role not found"));
+
+        user.setRole(role);
+        userRepository.save(user);
+
+        return toUserDetailRes(user);
+    }
+
+    @Override
+    public void changeMyPassword(ChangePasswordReq request) {
+
+        int userId = getCurrentUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found"));
+
+        if (!passwordEncoder.matches(
+                request.getOldPassword(),
+                user.getPassword())) {
+            throw new BusinessException("Old password is incorrect");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        userRepository.save(user);
+    }
+
+    @Override
+    public String forgotPassword(ForgotPasswordReq request) {
+
+        User user = userRepository.findByEmail(request.getEmail());
+
+        if (user == null) {
+            throw new BusinessException("Email not found");
+        }
+
+        // 🔐 Generate password mới (8 ký tự)
+        String newPassword = UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, 8);
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        // 📧 Gửi email
+        EmailDetail emailDetail = new EmailDetail();
+        emailDetail.setRecipient(user.getEmail());
+        emailDetail.setSubject("Reset password - QiqiShop");
+
+        emailDetail.setMsgBody(
+                "<p>Hello <b>" + user.getName() + "</b>,</p>"
+                        + "<p>Your new password is:</p>"
+                        + "<h3>" + newPassword + "</h3>"
+                        + "<p>Please login and change your password immediately.</p>"
+                        + "<br/>"
+                        + "<p>Regards,<br/>QiqiShop</p>");
+
+        sendEmailService.sendSimpleMail(emailDetail);
+
+        return "New password has been sent to your email";
+    }
+
+    @Override
+    public UserDetailRes editMyProfile(EditMyProfileReq request) {
+
+        int userId = getCurrentUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException("User not found"));
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+        if (request.getBirthday() != null) {
+            user.setBirthday(request.getBirthday());
+        }
+
+        userRepository.save(user);
+
+        return toUserDetailRes(user);
+    }
+
+    private int getCurrentUserId() {
+
+        Authentication auth = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new BusinessException("Unauthorized");
+        }
+
+        return Integer.parseInt(auth.getName());
+    }
+
+    private UserDetailRes toUserDetailRes(User user) {
+
+        UserDetailRes res = new UserDetailRes();
+        res.setId(user.getId());
+        res.setName(user.getName());
+        res.setEmail(user.getEmail());
+        res.setPhone(user.getPhone());
+        res.setAddress(user.getAddress());
+        res.setBirthday(user.getBirthday());
+        res.setStatus(user.getStatus());
+
+        return res;
+    }
+
 }

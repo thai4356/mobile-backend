@@ -48,7 +48,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
             "/api/v*/auth/**",
                         "/api/v*/media/**",
                         "/api/v*/team/invite/accept",
-                        "/api/v*/team/invite/accept/**");
+                        "/api/v*/team/invite/accept/**",
+                    "/api/v1/users/forgot-password");
     }
 
     @Override

@@ -194,6 +194,7 @@ public class CartServiceImpl extends BaseRepository implements CartService {
     }
 
     @Override
+    @Transactional
     public CartDetailRes removeItem(int userId, int productId) {
         Cart cart = cartRepository.findActiveByUserId(userId);
 
@@ -207,10 +208,12 @@ public class CartServiceImpl extends BaseRepository implements CartService {
             throw new BusinessException("Cart item not found");
         }
 
-        cartItemRepository.delete(item);
+        cart.getItems().remove(item);
+
+        // optional nhưng nên có
+        cartRepository.save(cart);
 
         return getMyCart(userId);
     }
 
-    
 }

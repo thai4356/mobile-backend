@@ -5,8 +5,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import mobibe.mobilebe.dto.constant.ActiveStatus;
+import mobibe.mobilebe.dto.request.auth.ForgotPasswordReq;
 import mobibe.mobilebe.dto.request.auth.UserLoginReq;
 import mobibe.mobilebe.dto.request.auth.user.RegisterUser;
+import mobibe.mobilebe.dto.request.user.ChangePasswordReq;
+import mobibe.mobilebe.dto.request.user.EditMyProfileReq;
+import mobibe.mobilebe.dto.request.user.UpdateUserReq;
 import mobibe.mobilebe.dto.response.BaseResponse;
 import mobibe.mobilebe.dto.response.user.UserDetailRes;
 import mobibe.mobilebe.dto.response.user.UserListRes;
@@ -21,20 +25,14 @@ public interface UserService {
 
     BaseResponse<UserDetailRes> getDetailMember(int accountId);
 
-    // User addUserMember(AddUserBaseReq request);
-
-    // UserDetailRes updateMember(UpdateUserReq request);
-
-    // List<Integer> deleteMembers(IdsRequest request);
-
-    // void changePasswordMember(ChangePasswordUserReq request);
+    UserDetailRes updateMember(Integer userId,UpdateUserReq request);
 
     UserDetailRes getMyProfile();
 
-    // void changeMyPassword(ChangePasswordReq request);
+    void changeMyPassword(ChangePasswordReq request);
 
-    // String forgotPassword(ForgotPasswordReq request);
+    String forgotPassword(ForgotPasswordReq request);
 
-    // UserDetailRes editMyProfile(EditMyProfileReq request);
+    UserDetailRes editMyProfile(EditMyProfileReq request);
 
 }

@@ -1,6 +1,6 @@
 package mobibe.mobilebe.dto.response.user;
 
-import java.sql.Date;
+import java.util.Date;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;

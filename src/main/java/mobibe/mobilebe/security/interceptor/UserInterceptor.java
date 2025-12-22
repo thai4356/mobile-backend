@@ -1,4 +1,4 @@
-package  mobibe.mobilebe.security.interceptor;
+package mobibe.mobilebe.security.interceptor;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,6 +17,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.List;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 @Log4j2
 @Component
 public class UserInterceptor implements HandlerInterceptor {
@@ -27,8 +32,10 @@ public class UserInterceptor implements HandlerInterceptor {
     private UserRepository userRepository;
 
     @Override
-    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
-        BusinessException exception = new BusinessException(Translator.toLocale("login_required"), HttpStatus.UNAUTHORIZED);
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response,
+            @NotNull Object handler) throws Exception {
+        BusinessException exception = new BusinessException(Translator.toLocale("login_required"),
+                HttpStatus.UNAUTHORIZED);
         String vendorCode = request.getHeader("Authorization");
         if (Strings.isEmpty(vendorCode)) {
             throw exception;
@@ -39,12 +46,29 @@ public class UserInterceptor implements HandlerInterceptor {
         }
         String token = header[1];
         if (jwtTokenProvider.validateTokenRs256(token)) {
-            Integer sub = Integer.parseInt(jwtTokenProvider.getSubIdFromJwtRs256(token));
+
+            Integer sub = Integer.parseInt(
+                    jwtTokenProvider.getSubIdFromJwtRs256(token));
+
+            User user = userRepository.findById(sub)
+                    .orElseThrow(() -> exception);
+
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    String.valueOf(user.getId()),
+                    null,
+                    List.of(
+                            new SimpleGrantedAuthority(
+                                    "ROLE_" + user.getRole().getName())));
+
+            SecurityContextHolder.getContext()
+                    .setAuthentication(authentication);
+
             SecurityContexts.newContext();
-            User user = userRepository.findById(sub).orElseThrow(()-> exception);
             SecurityContexts.getContext().setData(user);
+
             return true;
         }
+
         throw exception;
     }
 }

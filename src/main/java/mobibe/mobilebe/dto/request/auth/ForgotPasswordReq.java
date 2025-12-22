@@ -6,23 +6,13 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ForgotPasswordReq {
-    @NotNull
-    int codeId;
-    @NotBlank
-    String code;
-    @NotBlank
-    String newPassword;
-    @NotBlank
-    String confirmNewPassword;
-
-    @AssertTrue(message = "Password don't matching")
-    public boolean isValid() {
-        return newPassword.equals(confirmNewPassword);
-    }
+     private String email;
 }

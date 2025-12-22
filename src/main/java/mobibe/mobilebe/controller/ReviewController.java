@@ -5,6 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import mobibe.mobilebe.dto.request.review.AddReviewReq;
@@ -43,7 +44,7 @@ public class ReviewController {
         return ResponseEntity.ok(new BaseResponse<>());
     }
 
-    
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<BaseResponse<Void>> delete(
             @PathVariable int reviewId,

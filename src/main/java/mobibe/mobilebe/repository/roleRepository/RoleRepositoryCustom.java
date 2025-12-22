@@ -28,4 +28,6 @@ public interface RoleRepositoryCustom {
     List<PermissionRes> getPermissions(int roleId, Role role);
 
     RoleDetail getRoleById(Integer roleId);
+
+    Role getUserRole();
 }

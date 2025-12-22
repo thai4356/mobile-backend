@@ -24,26 +24,26 @@ public class CategoryController {
         return ResponseEntity.ok(categoryService.findAllActive());
     }
 
-    // @PostMapping
-    // public ResponseEntity<Category> create(@RequestBody Category category) {
-    // return ResponseEntity.ok(categoryService.create(category));
-    // }
+    @PostMapping
+    public ResponseEntity<Category> create(@RequestBody Category category) {
+        return ResponseEntity.ok(categoryService.create(category));
+    }
 
     @GetMapping("/search")
     public ResponseEntity<List<Category>> search(@RequestParam String keyword) {
         return ResponseEntity.ok(categoryService.search(keyword));
     }
 
-    // @PutMapping("/{id}")
-    // public ResponseEntity<Category> update(
-    // @PathVariable Integer id,
-    // @RequestBody Category category) {
-    // return ResponseEntity.ok(categoryService.update(id, category));
-    // }
+    @PutMapping("/{id}")
+    public ResponseEntity<Category> update(
+            @PathVariable Integer id,
+            @RequestBody Category category) {
+        return ResponseEntity.ok(categoryService.update(id, category));
+    }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<Void> delete(@PathVariable Integer id) {
-    // categoryService.delete(id);
-    // return ResponseEntity.noContent().build();
-    // }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
+        categoryService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
 }

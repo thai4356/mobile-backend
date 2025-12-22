@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import mobibe.mobilebe.dto.request.order.UpdateOrderReq;
 import mobibe.mobilebe.dto.response.order.OrderItemRes;
 import mobibe.mobilebe.dto.response.order.OrderRes;
 import mobibe.mobilebe.entity.cart.Cart;
@@ -137,4 +138,33 @@ public class OrderServiceImpl implements OrderService {
 
         return result;
     }
+
+    @Override
+    @Transactional
+    public OrderRes updateOrder(int orderId, UpdateOrderReq request) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new BusinessException("Order not found"));
+
+        // Không cho sửa nếu đã kết thúc
+        if ("DONE".equals(order.getStatus()) || "CANCEL".equals(order.getStatus())) {
+            throw new BusinessException("Order cannot be updated");
+        }
+
+        String newStatus = request.getStatus();
+
+        List<String> validStatus = List.of(
+                "NEW", "CONFIRMED", "SHIPPING", "DONE", "CANCEL");
+
+        if (!validStatus.contains(newStatus)) {
+            throw new BusinessException("Invalid order status");
+        }
+
+        // ✅ DÙNG STATUS TỪ REQUEST
+        order.setStatus(newStatus);
+
+        orderRepository.save(order);
+        return toOrderRes(order);
+    }
+
 }

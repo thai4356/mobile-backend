@@ -24,6 +24,7 @@ public class OrderRepositoryImpl extends BaseRepository implements OrderReposito
 
         BooleanBuilder builder = new BooleanBuilder();
         builder.and((qOrder.user.id).eq(userId));
+        builder.and((qOrder.deleted).isFalse());
 
         return query()
                 .select(qOrder)
