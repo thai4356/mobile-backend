@@ -8,32 +8,34 @@ import lombok.RequiredArgsConstructor;
 
 import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 import mobibe.mobilebe.entity.category.Category;
 import mobibe.mobilebe.entity.category.QCategory;
-
+import mobibe.mobilebe.entity.product.QProduct;
 
 @Repository
 public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
-     private final JPAQueryFactory queryFactory;
+    private final JPAQueryFactory queryFactory;
 
     QCategory qCategory = QCategory.category;
+
     public CategoryRepositoryImpl(EntityManager entityManager) {
         this.queryFactory = new JPAQueryFactory(entityManager);
     }
 
     @Override
     public List<Category> findAllActive() {
-    
+
         return queryFactory
                 .selectFrom(qCategory)
                 .where(qCategory.active.isTrue())
                 .where(qCategory.deleted.isFalse())
-                .fetch(); 
+                .fetch();
     }
 
     @Override
@@ -54,4 +56,6 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
                 .orderBy(qCategory.createdAt.desc())
                 .fetch();
     }
+
+ 
 }

@@ -29,8 +29,8 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAll() {
-        return ResponseEntity.ok(productService.getAll());
+    public BaseResponse<List<ProductRes>> getAll() {
+        return new BaseResponse<>(productService.getAll());
     }
 
     @GetMapping("/category/{categoryId}")
@@ -58,10 +58,11 @@ public class ProductController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public BaseResponse<ProductRes> create(
             @ModelAttribute ProductReq productReq,
             @RequestPart(required = false) List<MultipartFile> files) {
+
         return new BaseResponse<>(
                 productService.create(productReq, files));
     }

@@ -3,7 +3,9 @@ package mobibe.mobilebe.dto.response.product;
 import java.math.BigDecimal;
 import java.util.List;
 
+import mobibe.mobilebe.dto.request.tag.TagReq;
 import mobibe.mobilebe.dto.response.upload_file.UploadFileRes;
+import mobibe.mobilebe.entity.productTag.ProductTag;
 
 public class ProductRes {
 
@@ -16,11 +18,14 @@ public class ProductRes {
     private String categoryName;
     private boolean deleted;
     private List<UploadFileRes> files;
-    
+
+    private List<ProductTagRes> tags;
+
     // getter & setter
     public Integer getId() {
         return id;
     }
+
     public void setId(Integer id) {
         this.id = id;
     }
@@ -28,6 +33,7 @@ public class ProductRes {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -35,6 +41,7 @@ public class ProductRes {
     public String getDescription() {
         return description;
     }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -42,6 +49,7 @@ public class ProductRes {
     public BigDecimal getPrice() {
         return price;
     }
+
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
@@ -49,6 +57,7 @@ public class ProductRes {
     public Integer getStock() {
         return stock;
     }
+
     public void setStock(Integer stock) {
         this.stock = stock;
     }
@@ -56,6 +65,7 @@ public class ProductRes {
     public Integer getCategoryId() {
         return categoryId;
     }
+
     public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
@@ -63,6 +73,7 @@ public class ProductRes {
     public String getCategoryName() {
         return categoryName;
     }
+
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
     }
@@ -82,4 +93,16 @@ public class ProductRes {
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
+
+    public List<ProductTagRes> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<ProductTagRes> tags) {
+        this.tags = tags;
+    }
+
+
+
+  
 }

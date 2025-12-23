@@ -22,7 +22,7 @@ public class ReviewRepositoryImpl implements ReviewRepositoryCustom {
     public boolean existsByProductAndUser(int productId, int userId) {
 
         Integer result = new JPAQuery<Integer>(entityManager)
-                .select(review.id) // ❌ không selectOne
+                .select(review.id) 
                 .from(review)
                 .where(
                         review.product.id.eq(productId),

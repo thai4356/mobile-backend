@@ -11,7 +11,7 @@ import mobibe.mobilebe.dto.response.product.ProductRes;
 
 public interface ProductService {
 
-    List<Product> getAll();
+    List<ProductRes> getAll();
 
     List<Product> getByCategory(int categoryId);
 

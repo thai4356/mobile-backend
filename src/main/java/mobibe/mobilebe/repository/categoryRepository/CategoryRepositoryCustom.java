@@ -12,4 +12,5 @@ public interface CategoryRepositoryCustom {
 
     List<Category> findAllActive() ;
     List<Category> search(String keyword);
+    
 }

@@ -3,20 +3,26 @@ package mobibe.mobilebe.service.category;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import mobibe.mobilebe.entity.category.Category;
+import mobibe.mobilebe.entity.product.Product;
 import mobibe.mobilebe.exceptions.BusinessException;
 import mobibe.mobilebe.repository.categoryRepository.CategoryRepository;
 
 import java.util.List;
 
+import mobibe.mobilebe.repository.productRepository.ProductRepository;
+
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final ProductRepository productRepository;
 
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+    public CategoryServiceImpl(CategoryRepository categoryRepository, ProductRepository productRepository) {
         this.categoryRepository = categoryRepository;
+        this.productRepository = productRepository;
     }
 
     @Override
@@ -27,6 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         category.setId(0); // đảm bảo insert
+        category.setActive(true);
         return categoryRepository.save(category);
     }
 
@@ -40,32 +47,48 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public Category update(Integer id, Category req) {
 
-        Category category = categoryRepository
-                .findById(id)
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("category_not_found"));
 
         if (req.getName() != null) {
             category.setName(req.getName());
         }
+
         if (req.getDescription() != null) {
             category.setDescription(req.getDescription());
         }
 
         category.setActive(req.isActive());
 
+        productRepository.updateActiveByCategoryId(id, req.isActive());
+
         return categoryRepository.save(category);
     }
 
     @Override
+    @Transactional
     public void delete(Integer id) {
 
-        Category category = categoryRepository
-                .findById(id)
+        Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("category_not_found"));
 
+        // 1. Soft delete category
         category.setDeleted(true);
+        category.setActive(false);
+
+        // 2. Soft delete products thuộc category
+        List<Product> products = productRepository.findByCategoryIdAndDeletedFalse(id);
+
+        for (Product product : products) {
+            product.setDeleted(true);
+            product.setActive(false);
+        }
+
+        // 3. Save
+        productRepository.saveAll(products);
         categoryRepository.save(category);
     }
 }

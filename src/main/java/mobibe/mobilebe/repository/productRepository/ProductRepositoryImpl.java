@@ -11,6 +11,7 @@ import mobibe.mobilebe.entity.product.Product;
 import mobibe.mobilebe.entity.product.QProduct;
 import mobibe.mobilebe.repository.BaseRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -100,4 +101,30 @@ public class ProductRepositoryImpl extends BaseRepository implements ProductRepo
                 .execute();
     }
 
+    @Override
+    @Transactional
+    public void updateActiveByCategoryId(Integer categoryId, boolean active) {
+
+        query()
+                .update(product)
+                .set(product.active, active)
+                .where(
+                        product.category.id.eq(categoryId),
+                        product.deleted.isFalse())
+                .execute();
+    }
+
+    @Override
+    public List<Product> findByCategoryIdAndDeletedFalse(Integer categoryId) {
+
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(product.category.id.eq(categoryId));
+        builder.and(product.deleted.isFalse());
+
+        return query()
+                .from(product)
+                .where(builder)
+                .select(product)
+                .fetch();
+    }
 }

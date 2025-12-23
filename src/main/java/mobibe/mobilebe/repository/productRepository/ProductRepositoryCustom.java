@@ -19,4 +19,8 @@ public interface ProductRepositoryCustom {
     void update(Product product);
 
     void deleteById(int id);
+
+    void updateActiveByCategoryId(Integer categoryId, boolean active);
+
+    List<Product> findByCategoryIdAndDeletedFalse(Integer categoryId);
 }
