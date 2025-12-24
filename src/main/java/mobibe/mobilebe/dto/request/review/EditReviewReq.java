@@ -12,7 +12,7 @@ public class EditReviewReq {
 
     @Min(1)
     @Max(5)
-    private int rating;
+    private Integer  rating;
 
     private String comment;
 }

@@ -25,28 +25,30 @@ public class ReviewServiceImpl implements ReviewService {
 
     private final ReviewRepository reviewRepository;
     private final ProductRepository productRepository;
-    private final UserRepository userRepository ;
+    private final UserRepository userRepository;
 
-    public ReviewServiceImpl(ProductRepository productRepository, ReviewRepository reviewRepository, UserRepository userRepository) {
+    public ReviewServiceImpl(ProductRepository productRepository, ReviewRepository reviewRepository,
+            UserRepository userRepository) {
         this.productRepository = productRepository;
         this.reviewRepository = reviewRepository;
         this.userRepository = userRepository;
     }
 
- 
     // ========== ADD ==========
     @Override
     @Transactional
     public int add(AddReviewReq req) {
 
-        if (reviewRepository.existsByProductAndUser(
+        if (reviewRepository.existsByProductAndUser( 
                 req.getProductId(), req.getUserId())) {
             throw new BusinessException("User already reviewed this product");
         }
 
-        Product product;
-        product = productRepository.findById(req.getProductId())
-                .orElseThrow(() -> new BusinessException("Product not found"));
+        Product product = productRepository.findById(req.getProductId());
+
+        if (product == null) {
+            throw new BusinessException("product_not_found");
+        }
 
         User user = userRepository.findById(req.getUserId())
                 .orElseThrow(() -> new BusinessException("User not found"));
@@ -73,9 +75,9 @@ public class ReviewServiceImpl implements ReviewService {
             throw new BusinessException("No permission to edit review");
         }
 
-        // if (req.getRating() != null) {
-        // review.setRating(req.getRating());
-        // }
+        if (req.getRating() != null) {
+        review.setRating(req.getRating());
+        }
         if (req.getComment() != null) {
             review.setComment(req.getComment());
         }

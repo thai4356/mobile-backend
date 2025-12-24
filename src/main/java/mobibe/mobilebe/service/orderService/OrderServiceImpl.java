@@ -13,6 +13,7 @@ import mobibe.mobilebe.entity.cart.Cart;
 import mobibe.mobilebe.entity.cartItem.CartItem;
 import mobibe.mobilebe.entity.order.Order;
 import mobibe.mobilebe.entity.orderItem.OrderItem;
+import mobibe.mobilebe.entity.product.Product;
 import mobibe.mobilebe.entity.user.User;
 import mobibe.mobilebe.exceptions.BusinessException;
 import mobibe.mobilebe.repository.cartRepository.CartRepository;
@@ -22,8 +23,10 @@ import mobibe.mobilebe.repository.userRepository.UserRepository;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import mobibe.mobilebe.repository.cartItemRepository.CartItemRepository;
+import mobibe.mobilebe.repository.productRepository.ProductRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +37,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
     private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
 
     @Override
     public OrderRes createOrder(int userId) {
@@ -57,6 +61,10 @@ public class OrderServiceImpl implements OrderService {
             OrderItem item = new OrderItem();
             item.setOrder(order);
             item.setProduct(cartItem.getProduct());
+            Product p = productRepository.findById(cartItem.getProduct().getId());
+            p.setStock(p.getStock() - cartItem.getQuantity());
+            productRepository.save(p);
+
             item.setQuantity(cartItem.getQuantity());
             item.setPrice(cartItem.getProduct().getPrice());
 

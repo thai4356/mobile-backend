@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductRes> getAll() {
         List<Product> products = productRepository.findAllActive();
-            
+
         return products.stream()
                 .map(this::toRes)
                 .toList();
@@ -278,7 +278,7 @@ public class ProductServiceImpl implements ProductService {
         res.setDescription(product.getDescription());
         res.setPrice(product.getPrice());
         res.setStock(product.getStock());
-
+        res.setActive(product.isActive());
         if (product.getCategory() != null) {
             res.setCategoryId(product.getCategory().getId());
             res.setCategoryName(product.getCategory().getName());
