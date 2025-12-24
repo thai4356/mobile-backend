@@ -72,7 +72,6 @@ public class ProductRepositoryImpl extends BaseRepository implements ProductRepo
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(product.id.eq(id));
         builder.and(product.deleted.isFalse());
-        builder.and(product.active.isTrue());
 
         return query()
                 .from(product)
