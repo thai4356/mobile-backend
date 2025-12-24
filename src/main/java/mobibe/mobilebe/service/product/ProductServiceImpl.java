@@ -186,6 +186,10 @@ public class ProductServiceImpl implements ProductService {
             product.setStock(req.getStock());
         }
 
+        if (req.getActive() != null) {
+            product.setActive(req.getActive());
+        }
+
         if (req.getCategoryId() != null) {
             Category category = categoryRepository.findById(req.getCategoryId())
                     .orElseThrow(() -> new BusinessException("Category not found"));
