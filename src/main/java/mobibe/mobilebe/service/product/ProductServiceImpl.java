@@ -56,7 +56,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductRes> getAll() {
         List<Product> products = productRepository.findAllActive();
-
+            
         return products.stream()
                 .map(this::toRes)
                 .toList();
@@ -134,7 +134,6 @@ public class ProductServiceImpl implements ProductService {
 
             productCommandService.handleTags(product, req.getTags());
 
-            // ===== HANDLE IMAGE =====
             try {
                 handleUploadFiles(product, files, UploadFileType.IMAGE);
             } catch (Exception e) {

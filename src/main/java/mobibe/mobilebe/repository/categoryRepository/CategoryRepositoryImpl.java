@@ -33,7 +33,6 @@ public class CategoryRepositoryImpl implements CategoryRepositoryCustom {
 
         return queryFactory
                 .selectFrom(qCategory)
-                .where(qCategory.active.isTrue())
                 .where(qCategory.deleted.isFalse())
                 .fetch();
     }

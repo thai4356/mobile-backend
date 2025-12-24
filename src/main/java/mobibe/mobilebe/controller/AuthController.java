@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import mobibe.mobilebe.converter.Translator;
+import mobibe.mobilebe.dto.request.auth.ForgotPasswordReq;
 import mobibe.mobilebe.dto.request.auth.UserLoginReq;
 import mobibe.mobilebe.dto.request.auth.user.RegisterUser;
 import mobibe.mobilebe.dto.request.otp.SendOtpReq;
@@ -41,7 +42,7 @@ public class AuthController {
                 return ResponseEntity.ok(
                                 new BaseResponse<>(
                                                 data,
-                                                translator.toLocale("label_success"),200));
+                                                translator.toLocale("label_success"), 200));
         }
 
         @Operation(summary = "Register")
@@ -56,13 +57,11 @@ public class AuthController {
                                                 translator.toLocale("label_success")));
         }
 
-        // @Operation(summary = "Forgot password")
-        // @PostMapping("v1/auth/forgot-password")
-        // public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestBody
-        // @Valid ForgotPasswordReq request) {
-        // return ResponseEntity.ok(new
-        // BaseResponse<>(userService.forgotPassword(request)));
-        // }
+        @Operation(summary = "Forgot password")
+        @PostMapping("/forgot-password")
+        public ResponseEntity<BaseResponse<String>> forgotPassword(@RequestBody @Valid ForgotPasswordReq request) {
+                return ResponseEntity.ok(new BaseResponse<>(userService.forgotPassword(request)));
+        }
 
         @Operation(summary = "Send OTP forgot password")
         @PostMapping("/auth/send-otp")

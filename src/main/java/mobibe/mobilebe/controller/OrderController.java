@@ -28,6 +28,11 @@ public class OrderController {
         this.orderService = orderService;
     }
 
+    @GetMapping
+    public ResponseEntity<List<OrderRes>> getAllOrders() {
+        return ResponseEntity.ok(
+                orderService.getAllOrders());
+    }
 
     @PostMapping
     public ResponseEntity<BaseResponse<OrderRes>> createOrder(
@@ -42,7 +47,6 @@ public class OrderController {
         return ResponseEntity.ok(new BaseResponse<>(data));
     }
 
-    
     @GetMapping("/my")
     public ResponseEntity<BaseResponse<List<OrderRes>>> getMyOrders() {
 
@@ -63,4 +67,14 @@ public class OrderController {
         return ResponseEntity.ok(
                 new BaseResponse<>(orderService.updateOrder(orderId, request)));
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderRes> getOrderDetail(
+            @PathVariable int orderId) {
+
+        return ResponseEntity.ok(
+                orderService.getOrderDetail(orderId));
+    }
+
 }

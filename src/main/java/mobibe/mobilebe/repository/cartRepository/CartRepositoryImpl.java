@@ -16,7 +16,6 @@ public class CartRepositoryImpl extends BaseRepository
     public Cart findActiveByUserId(int userId) {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(cart.deleted.isFalse());
-        builder.and(cart.active.isTrue());
         builder.and(cart.user.id.eq(userId));
 
         return query()

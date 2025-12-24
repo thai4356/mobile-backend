@@ -27,7 +27,7 @@ public class Product extends BaseEntity {
 
     private Integer stock;
 
-    private boolean active = true;
+    private boolean active ;
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
@@ -35,6 +35,5 @@ public class Product extends BaseEntity {
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UploadFile> files;
-
     
 }

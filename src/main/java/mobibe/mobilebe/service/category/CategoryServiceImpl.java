@@ -62,8 +62,15 @@ public class CategoryServiceImpl implements CategoryService {
         }
 
         category.setActive(req.isActive());
+        System.out.println("hien tai : " + req.isActive());
 
-        productRepository.updateActiveByCategoryId(id, req.isActive());
+        List<Product> products = productRepository.findByCategoryId(id);
+
+        for (Product product : products) {
+            product.setActive(req.isActive());
+        }
+
+        productRepository.saveAll(products);
 
         return categoryRepository.save(category);
     }
@@ -75,11 +82,9 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new BusinessException("category_not_found"));
 
-        // 1. Soft delete category
         category.setDeleted(true);
         category.setActive(false);
 
-        // 2. Soft delete products thuộc category
         List<Product> products = productRepository.findByCategoryIdAndDeletedFalse(id);
 
         for (Product product : products) {

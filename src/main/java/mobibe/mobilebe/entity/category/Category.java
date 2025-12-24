@@ -16,5 +16,7 @@ public class Category extends BaseEntity {
 
     private String description;
 
-    private boolean active ;
+    private boolean active;
+
+
 }

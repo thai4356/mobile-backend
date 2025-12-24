@@ -11,5 +11,9 @@ public interface OrderService {
 
     List<OrderRes> getOrders(int userId);
 
+    List<OrderRes> getAllOrders();
+
     OrderRes updateOrder(int orderId, UpdateOrderReq request);
+
+    OrderRes getOrderDetail(int orderId);
 }

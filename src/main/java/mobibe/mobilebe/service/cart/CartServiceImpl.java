@@ -56,7 +56,6 @@ public class CartServiceImpl extends BaseRepository implements CartService {
                 existingCart.setDeleted(false);
                 cart = cartRepository.save(existingCart);
             } else {
-                // 3. User chưa từng có cart
                 cart = new Cart();
                 cart.setActive(true);
                 cart.setDeleted(false);
@@ -125,13 +124,11 @@ public class CartServiceImpl extends BaseRepository implements CartService {
             item.setQuantity(item.getQuantity() + request.getQuantity());
             cartItemRepository.save(item);
         } else {
-            Product product = productRepository.findOneActiveById(request.getProductId());
-
+            Product  product = productRepository.findOneActiveById(request.getProductId());
             CartItem newItem = new CartItem();
             newItem.setCart(cart);
             newItem.setProduct(product);
-            newItem.setQuantity(request.getQuantity()); // FIX BUG
-
+            newItem.setQuantity(request.getQuantity()); 
             cartItemRepository.save(newItem);
             cart.getItems().add(newItem);
         }

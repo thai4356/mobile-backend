@@ -15,5 +15,5 @@ public interface ProductTagRepositoryCustom {
 
     List<Integer> findTagIdsByNameAndType(String name, String type);
 
-
+    List<ProductTag> findTagsByMessage(String message);
 }

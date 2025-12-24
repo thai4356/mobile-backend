@@ -17,6 +17,8 @@ public class ProductRes {
     private Integer categoryId;
     private String categoryName;
     private boolean deleted;
+    private boolean active;
+
     private List<UploadFileRes> files;
 
     private List<ProductTagRes> tags;
@@ -102,7 +104,12 @@ public class ProductRes {
         this.tags = tags;
     }
 
+    public boolean isActive() {
+        return active;
+    }
 
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
-  
 }

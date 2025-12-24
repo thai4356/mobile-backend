@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -73,7 +74,27 @@ public class ProductTagRepositoryImpl extends BaseRepository implements ProductT
                                 .from(tag)
                                 .where(builder)
                                 .select(tag.id)
-                                .fetch(); 
+                                .fetch();
         }
 
+        @Override
+        public List<ProductTag> findTagsByMessage(String message) {
+
+                if (message == null || message.isBlank()) {
+                        return List.of();
+                }
+
+                String msg = message.toLowerCase();
+
+                return query()
+                                .from(tag)
+                                .where(
+                                                tag.deleted.isFalse(),
+                                                Expressions.booleanTemplate(
+                                                                "LOWER({0}) LIKE CONCAT('%', {1}, '%')",
+                                                                msg,
+                                                                tag.name.lower()))
+                                .select(tag)
+                                .fetch();
+        }
 }

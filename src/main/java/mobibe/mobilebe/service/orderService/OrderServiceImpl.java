@@ -154,17 +154,68 @@ public class OrderServiceImpl implements OrderService {
         String newStatus = request.getStatus();
 
         List<String> validStatus = List.of(
-                "NEW", "CONFIRMED", "SHIPPING", "DONE", "CANCEL");
+                "NEW", "CONFIRMED", "DELIVERING", "DONE", "CANCEL");
 
         if (!validStatus.contains(newStatus)) {
             throw new BusinessException("Invalid order status");
         }
 
-        // ✅ DÙNG STATUS TỪ REQUEST
         order.setStatus(newStatus);
 
         orderRepository.save(order);
         return toOrderRes(order);
+    }
+
+    public List<OrderRes> getAllOrders() {
+        return orderRepository.findAll()
+                .stream()
+                .map(this::mapToOrderRes)
+                .toList();
+    }
+
+    private OrderRes mapToOrderRes(Order order) {
+
+        OrderRes res = new OrderRes();
+        res.setId(order.getId());
+
+        res.setTotalAmount(order.getTotalAmount());
+
+        res.setStatus(order.getStatus());
+        res.setCreatedAt(order.getCreatedAt());
+
+        // ✅ map items (KHÔNG gán thẳng entity)
+        if (order.getItems() != null) {
+            res.setItems(
+                    order.getItems()
+                            .stream()
+                            .map(this::mapToOrderItemRes)
+                            .toList());
+        }
+
+        return res;
+    }
+
+    private OrderItemRes mapToOrderItemRes(OrderItem item) {
+
+        OrderItemRes res = new OrderItemRes();
+        res.setProductId(item.getProduct().getId());
+        res.setProductName(item.getProduct().getName());
+        res.setPrice(item.getPrice());
+        res.setQuantity(item.getQuantity());
+
+        return res;
+    }
+
+    @Override
+    public OrderRes getOrderDetail(int orderId) {
+
+        Order order = orderRepository.findByOrderId(orderId);
+
+        if (order == null) {
+            throw new BusinessException("order_not_found");
+        }
+
+        return mapToOrderRes(order);
     }
 
 }

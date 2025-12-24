@@ -12,12 +12,9 @@ public class AIChatRes {
     private List<AITagRes> tags;
     private List<AIProductRes> products;
 
-    public AIChatRes() {
-    }
+    private List<String> suggestions;
 
-    public AIChatRes(String message, List<AIProductRes> products, List<AITagRes> tags) {
-        this.message = message;
-        this.products = products;
-        this.tags = tags;
-    }
+    private Integer maxBudget;
+
+   
 }
