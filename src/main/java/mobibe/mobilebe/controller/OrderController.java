@@ -58,7 +58,6 @@ public class OrderController {
                 new BaseResponse<>(orderService.getOrders(userId)));
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','STAFF')")
     @PutMapping("/{orderId}")
     public ResponseEntity<BaseResponse<OrderRes>> updateOrder(
             @PathVariable int orderId,
