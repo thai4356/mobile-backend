@@ -7,7 +7,6 @@ import mobibe.mobilebe.entity.product.Product;
 import mobibe.mobilebe.entity.productTag.ProductTag;
 import mobibe.mobilebe.repository.productTag.ProductTagRepository;
 import mobibe.mobilebe.repository.productTagMapping.ProductTagMappingRepository;
-import mobibe.mobilebe.other_service.ai.enumuration.BudgetCondition;
 import mobibe.mobilebe.other_service.ai.enumuration.BudgetType;
 import org.springframework.stereotype.Service;
 
