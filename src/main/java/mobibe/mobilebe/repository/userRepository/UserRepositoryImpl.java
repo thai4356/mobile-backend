@@ -84,10 +84,10 @@ public class UserRepositoryImpl extends BaseRepository implements UserRepository
                     qUser.email.contains(searchKeyword));
         }
         Long count = query().from(qUser)
-                .innerJoin(qRole).on(qRole.id.eq(qUser.role))
                 .where(builder)
                 .select(qUser.id.count())
                 .fetchOne();
+                
         return count == null ? 0 : count;
     }
 
